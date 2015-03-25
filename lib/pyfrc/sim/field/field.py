@@ -100,7 +100,7 @@ class RobotField(object):
         # TODO: process collisions and such too
         
         for element in self.elements:
-            element.perform_move()
+            element.perform_move(self.elements)
             
     def draw_field(self):
         for row in range(self.rows):

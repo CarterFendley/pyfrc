@@ -3,6 +3,7 @@
 # TODO: Not complete yet, this is just a bunch of ideas
 
 import math
+from . import sympy_collision as symc
 
 
 class DrawableElement(object):
@@ -17,18 +18,18 @@ class DrawableElement(object):
         self.center = center    # (x,y)
         self.angle = angle      # radians 
         self.solid = solid
+        self.ineq = symc.createIneq(self.pts)
 
     def initialize(self, canvas):
         
         self.canvas = canvas
         self.id = self.canvas.create_polygon(*self.pts, fill=self.color)
-                    
         
     def intersects(self):
         # TODO: 
         pass
         
-    def move(self, v):
+    def move(self, v, elements):
         '''v is a tuple of x/y coordinates to move object'''
         
         # rotate movement vector according to the angle of the object
@@ -42,8 +43,23 @@ class DrawableElement(object):
             
         # TODO: detect other objects in the way, stop movement appropriately
             
-        self.pts = [p for p in map(lambda x: _move(x), self.pts)]
-        self.center = _move(self.center)
+        requested_pts = [p for p in map(lambda x: _move(x), self.pts)]
+        
+        ineq = symc.createIneq(requested_pts)
+        
+        for element in elements:
+            preform_action = True
+            
+            if element.solid:
+                print(len(ineq))
+                if symc.getCollision(ineq, element.ineq) != None:
+                    preform_action = False
+                    break
+                
+        if preform_action:
+            self.pts = requested_pts
+            self.ineq = ineq
+            self.center = _move(self.center)
         
         
     def rotate(self, angle):
@@ -83,8 +99,8 @@ class DrawableElement(object):
             pts = [c for p in self.pts for c in p]
             self.canvas.coords(self.id, *pts)
         
-    def perform_move(self):
-        self.update_coordinates()
+    def perform_move(self, elements):
+        self.update_coordinates()  
         
 class CompositeElement(object):
     '''A composite element can contain a number of drawable elements, and 
@@ -101,9 +117,9 @@ class CompositeElement(object):
             
     # TODO: I feel these may not be necessary?
             
-    def move(self, v):
+    def move(self, v, elements):
         for e in self.elements:
-            e.move(v)
+            e.move(v, elements)
             
     def rotate(self, angle):
         for e in self.elements:

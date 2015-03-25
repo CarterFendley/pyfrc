@@ -52,3 +52,4 @@ class UsbJoysticks(object):
                     ui_current_button.deselect()
                 else:
                     ui_current_button.select()
+                    

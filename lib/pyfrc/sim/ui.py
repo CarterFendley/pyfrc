@@ -20,7 +20,7 @@ from .field.field import RobotField
 
 from .ui_widgets import CheckButtonWrapper, PanelIndicator, Tooltip, ValueWidget
 
-from . import pygame_joysticks as usb
+from . import pygame_joysticks as pg
 
 
 class SimUI(object):
@@ -61,7 +61,7 @@ class SimUI(object):
         self.on_robot_mode_change(self.manager.get_mode())
         
         # create pygame joystick
-        self.usb_joysticks = usb.UsbJoysticks(self)  
+        self.usb_joysticks = pg.UsbJoysticks(self)  
         
         self.timer_fired()      
         

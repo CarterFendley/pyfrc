@@ -21,6 +21,8 @@ class RobotElement(CompositeElement):
         center_y = config_obj['pyfrc']['robot']['starting_y']
         angle = config_obj['pyfrc']['robot']['starting_angle']
         
+        self.solid = True
+        
         self.controller = controller
         self.controller.robot_face = 0
         self.px_per_ft = px_per_ft
@@ -42,8 +44,10 @@ class RobotElement(CompositeElement):
             (center_x - robot_w/2, center_y + robot_h/2),
         ]
         
-        robot = DrawableElement(pts, center, 0, 'red', True)
+        robot = DrawableElement(pts, center, 0, 'red', self.solid)
         self.elements.append(robot)
+        
+        self.ineq = robot.ineq
         
         pts = [
             (center_x - robot_w/2, center_y - robot_h/2),
@@ -57,19 +61,19 @@ class RobotElement(CompositeElement):
         if angle != 0:
             self.rotate(math.radians(angle))
     
-    def perform_move(self):
+    def perform_move(self, elements):
         
         if not self.controller.is_alive():
             self.elements[1].set_color('gray')
         
         # query the controller for move information
-        self.move_robot()
+        self.move_robot(elements)
         
         # finally, call the superclass to actually do the drawing
         self.update_coordinates()
         
         
-    def move_robot(self):
+    def move_robot(self, elements):
         
         px_per_ft = self.px_per_ft
         
@@ -87,9 +91,10 @@ class RobotElement(CompositeElement):
         if da != 0:
             self.rotate(da)
         
-        self.move((dx, dy))
+        self.move((dx, dy), elements)
         
         self.position = x, y, a
+        
         
         
         
